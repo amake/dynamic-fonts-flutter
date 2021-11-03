@@ -62,6 +62,7 @@ TextStyle googleFontsTextStyle({
   TextDecorationStyle? decorationStyle,
   double? decorationThickness,
   required Map<GoogleFontsVariant, GoogleFontsFile> fonts,
+  required bool eager,
 }) {
   textStyle ??= TextStyle();
   textStyle = textStyle.copyWith(
@@ -84,6 +85,11 @@ TextStyle googleFontsTextStyle({
     decorationStyle: decorationStyle,
     decorationThickness: decorationThickness,
   );
+
+  if (eager) {
+    eagerlyLoadFamily(fontFamily: fontFamily, fonts: fonts);
+    return textStyle.copyWith(fontFamily: fontFamily);
+  }
 
   final variant = GoogleFontsVariant(
     fontWeight: textStyle.fontWeight ?? FontWeight.w400,
@@ -108,6 +114,26 @@ TextStyle googleFontsTextStyle({
   );
 }
 
+void eagerlyLoadFamily({
+  required String fontFamily,
+  required Map<GoogleFontsVariant, GoogleFontsFile> fonts,
+}) {
+  final loader = FontLoader(fontFamily);
+  final futures = <Future>[];
+  for (var variant in fonts.keys) {
+    final familyWithVariant = GoogleFontsFamilyWithVariant(
+      family: fontFamily,
+      googleFontsVariant: variant,
+    );
+    final descriptor = GoogleFontsDescriptor(
+      familyWithVariant: familyWithVariant,
+      file: fonts[variant]!,
+    );
+    futures.add(loadFontIfNecessary(descriptor, loader));
+  }
+  Future.wait<void>(futures).then((_) => loader.load());
+}
+
 /// Loads a font into the [FontLoader] with [googleFontsFamilyName] for the
 /// matching [expectedFileHash].
 ///
@@ -118,7 +144,8 @@ TextStyle googleFontsTextStyle({
 /// as an asset, then on the device file system. If it isn't, it is fetched via
 /// the [fontUrl] and stored on device. In all cases, the font is loaded into
 /// the [FontLoader].
-Future<void> loadFontIfNecessary(GoogleFontsDescriptor descriptor) async {
+Future<void> loadFontIfNecessary(GoogleFontsDescriptor descriptor,
+    [FontLoader? fontLoader]) async {
   final familyWithVariantString = descriptor.familyWithVariant.toString();
   final fontName = descriptor.familyWithVariant.toApiFilenamePrefix();
   // If this font has already already loaded or is loading, then there is no
@@ -143,14 +170,14 @@ Future<void> loadFontIfNecessary(GoogleFontsDescriptor descriptor) async {
       byteData = rootBundle.load(assetPath);
     }
     if (await byteData != null) {
-      return loadFontByteData(familyWithVariantString, byteData);
+      return loadFontByteData(familyWithVariantString, byteData, fontLoader);
     }
 
     // Check if this font can be loaded from the device file system.
     byteData = file_io.loadFontFromDeviceFileSystem(familyWithVariantString);
 
     if (await byteData != null) {
-      return loadFontByteData(familyWithVariantString, byteData);
+      return loadFontByteData(familyWithVariantString, byteData, fontLoader);
     }
 
     // Attempt to load this font via http, unless disallowed.
@@ -160,7 +187,7 @@ Future<void> loadFontIfNecessary(GoogleFontsDescriptor descriptor) async {
         descriptor.file,
       );
       if (await byteData != null) {
-        return loadFontByteData(familyWithVariantString, byteData);
+        return loadFontByteData(familyWithVariantString, byteData, fontLoader);
       }
     } else {
       throw Exception(
@@ -180,15 +207,17 @@ Future<void> loadFontIfNecessary(GoogleFontsDescriptor descriptor) async {
 @visibleForTesting
 Future<void> loadFontByteData(
   String familyWithVariantString,
-  Future<ByteData?>? byteData,
-) async {
+  Future<ByteData?>? byteData, [
+  FontLoader? fontLoader,
+]) async {
   if (byteData == null) return;
   final fontData = await byteData;
   if (fontData == null) return;
 
-  final fontLoader = FontLoader(familyWithVariantString);
+  final loadNow = fontLoader == null;
+  fontLoader ??= FontLoader(familyWithVariantString);
   fontLoader.addFont(Future.value(fontData));
-  await fontLoader.load();
+  if (loadNow) await fontLoader.load();
 }
 
 /// Returns [GoogleFontsVariant] from [variantsToCompare] that most closely

@@ -10,8 +10,8 @@ import 'package:flutter/services.dart';
 /// A class to obtain and memoize the app's asset manifest.
 ///
 /// Used to check whether a font is provided as an asset.
-class AssetManifest {
-  AssetManifest({this.enableCache = true});
+class MyAssetManifest {
+  MyAssetManifest({this.enableCache = true});
 
   static Future<Map<String, List<String>>?>? _jsonFuture;
 

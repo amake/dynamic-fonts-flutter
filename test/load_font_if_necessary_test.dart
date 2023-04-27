@@ -21,7 +21,7 @@ class MockHttpClient extends Mock implements http.Client {
   }
 }
 
-class MockAssetManifest extends Mock implements AssetManifest {}
+class MockAssetManifest extends Mock implements MyAssetManifest {}
 
 const _fakeResponse = 'fake response body - success';
 // The number of bytes in _fakeResponse.

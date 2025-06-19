@@ -165,6 +165,7 @@ class DynamicFonts {
           displayLarge: styleBuilder(textStyle: textTheme.displayLarge),
           displayMedium: styleBuilder(textStyle: textTheme.displayMedium),
           displaySmall: styleBuilder(textStyle: textTheme.displaySmall),
+          headlineLarge: styleBuilder(textStyle: textTheme.headlineLarge),
           headlineMedium: styleBuilder(textStyle: textTheme.headlineMedium),
           headlineSmall: styleBuilder(textStyle: textTheme.headlineSmall),
           titleLarge: styleBuilder(textStyle: textTheme.titleLarge),
@@ -174,6 +175,7 @@ class DynamicFonts {
           bodyMedium: styleBuilder(textStyle: textTheme.bodyMedium),
           bodySmall: styleBuilder(textStyle: textTheme.bodySmall),
           labelLarge: styleBuilder(textStyle: textTheme.labelLarge),
+          labelMedium: styleBuilder(textStyle: textTheme.labelMedium),
           labelSmall: styleBuilder(textStyle: textTheme.labelSmall),
         );
       };

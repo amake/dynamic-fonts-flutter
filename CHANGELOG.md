@@ -1,3 +1,7 @@
+## [2.2.2] - 2025-06-20
+
+* Add missing styles to TextTheme built by `DynamicFonts.themeBuilder`
+
 ## [2.2.1] - 2024-03-04
 
 * Validate the variantMap provided to `DynamicFonts.register` and

@@ -1,3 +1,8 @@
+## [3.0.0] - 2025-11-21
+
+* Require Flutter 3.32+
+* Stop using AssetManifest.json (fixes compatibility with Flutter 3.38)
+
 ## [2.2.2] - 2025-06-20
 
 * Add missing styles to TextTheme built by `DynamicFonts.themeBuilder`

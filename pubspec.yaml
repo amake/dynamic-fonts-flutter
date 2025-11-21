@@ -1,6 +1,6 @@
 name: dynamic_fonts
 description: A package to include dynamic web-hosted fonts in your Flutter app.
-version: 2.2.2
+version: 3.0.0
 homepage: https://github.com/amake/dynamic-fonts-flutter/
 
 environment:

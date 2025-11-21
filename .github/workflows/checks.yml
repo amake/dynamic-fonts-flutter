@@ -21,14 +21,13 @@ jobs:
         package: [google_fonts]
     steps:
       - name: Checkout code
-        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
+        uses: actions/checkout@v6
 
       - name: Install Flutter
-        uses: subosito/flutter-action@48cafc24713cca54bbe03cdc3a423187d413aafa # v2.10.0
+        uses: subosito/flutter-action@v2
         with:
-          channel: beta
-          cache: true
-          cache-key: 'flutter-:os:-:channel:-:version:-:arch:-:hash:'
+          channel: stable
+          flutter-version: 3.32.x
 
       - name: Get packages
         run: flutter pub get

@@ -10,7 +10,8 @@ import 'package:http/http.dart' as http;
 import '../dynamic_fonts.dart';
 import 'file_io.dart' // Stubbed implementation by default.
     // Concrete implementation if File IO is available.
-    if (dart.library.io) 'file_io_desktop_and_mobile.dart' as file_io;
+    if (dart.library.io) 'file_io_desktop_and_mobile.dart'
+    as file_io;
 import 'google_fonts_descriptor.dart';
 import 'google_fonts_family_with_variant.dart';
 import 'google_fonts_variant.dart';
@@ -150,8 +151,10 @@ void eagerlyLoadFamily({
 /// as an asset, then on the device file system. If it isn't, it is fetched via
 /// the [fontUrl] and stored on device. In all cases, the returned future
 /// completes once the font is loaded into the [FontLoader].
-Future<void> loadFontIfNecessary(GoogleFontsDescriptor descriptor,
-    [FontLoader? fontLoader]) async {
+Future<void> loadFontIfNecessary(
+  GoogleFontsDescriptor descriptor, [
+  FontLoader? fontLoader,
+]) async {
   final familyWithVariantString = descriptor.familyWithVariant.toString();
   final fontName = descriptor.familyWithVariant.toApiFilenamePrefix();
   final fileHash = descriptor.file.expectedFileHash;
@@ -208,8 +211,10 @@ Future<void> loadFontIfNecessary(GoogleFontsDescriptor descriptor,
     }
   } catch (e) {
     _loadedFonts.remove(familyWithVariantString);
-    print('Error: dynamic_fonts was unable to load font $fontName because the '
-        'following exception occurred:\n$e');
+    print(
+      'Error: dynamic_fonts was unable to load font $fontName because the '
+      'following exception occurred:\n$e',
+    );
     if (file_io.isTest) {
       // print('\nThere is likely something wrong with your test. Please see '
       //     'https://github.com/material-foundation/flutter-packages/blob/main/packages/google_fonts/example/test '
@@ -290,11 +295,13 @@ Future<ByteData> _httpFetchFontAndSaveToDevice(
       );
     }
 
-    _unawaited(file_io.saveFontToDeviceFileSystem(
-      name: fontName,
-      fileHash: file.expectedFileHash,
-      bytes: response.bodyBytes,
-    ));
+    _unawaited(
+      file_io.saveFontToDeviceFileSystem(
+        name: fontName,
+        fileHash: file.expectedFileHash,
+        bytes: response.bodyBytes,
+      ),
+    );
 
     return ByteData.view(response.bodyBytes.buffer);
   } else {
@@ -330,10 +337,14 @@ String? _findFamilyWithVariantAssetPath(
   final apiFilenamePrefix = familyWithVariant.toApiFilenamePrefix();
 
   for (final asset in manifestValues) {
-    for (final String matchingSuffix
-        in ['.ttf', '.otf'].where(asset.endsWith)) {
-      final assetWithoutExtension =
-          asset.substring(0, asset.length - matchingSuffix.length);
+    for (final String matchingSuffix in [
+      '.ttf',
+      '.otf',
+    ].where(asset.endsWith)) {
+      final assetWithoutExtension = asset.substring(
+        0,
+        asset.length - matchingSuffix.length,
+      );
       if (assetWithoutExtension.endsWith(apiFilenamePrefix)) {
         return asset;
       }

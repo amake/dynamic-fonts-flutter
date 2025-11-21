@@ -19,27 +19,28 @@ class _Config {
   var allowRuntimeFetching = true;
 }
 
-typedef TextStyleBuilder = TextStyle Function({
-  TextStyle? textStyle,
-  Color? color,
-  Color? backgroundColor,
-  double? fontSize,
-  FontWeight? fontWeight,
-  FontStyle? fontStyle,
-  double? letterSpacing,
-  double? wordSpacing,
-  TextBaseline? textBaseline,
-  double? height,
-  Locale? locale,
-  Paint? foreground,
-  Paint? background,
-  List<ui.Shadow>? shadows,
-  List<ui.FontFeature>? fontFeatures,
-  TextDecoration? decoration,
-  Color? decorationColor,
-  TextDecorationStyle? decorationStyle,
-  double? decorationThickness,
-});
+typedef TextStyleBuilder =
+    TextStyle Function({
+      TextStyle? textStyle,
+      Color? color,
+      Color? backgroundColor,
+      double? fontSize,
+      FontWeight? fontWeight,
+      FontStyle? fontStyle,
+      double? letterSpacing,
+      double? wordSpacing,
+      TextBaseline? textBaseline,
+      double? height,
+      Locale? locale,
+      Paint? foreground,
+      Paint? background,
+      List<ui.Shadow>? shadows,
+      List<ui.FontFeature>? fontFeatures,
+      TextDecoration? decoration,
+      Color? decorationColor,
+      TextDecorationStyle? decorationStyle,
+      double? decorationThickness,
+    });
 
 typedef TextThemeBuilder = TextTheme Function([TextTheme?]);
 
@@ -76,8 +77,10 @@ class DynamicFonts {
       Map.unmodifiable(_themeMap);
 
   static void register(
-      String familyName, Map<DynamicFontsVariant, DynamicFontsFile> variantMap,
-      {bool eager = false}) {
+    String familyName,
+    Map<DynamicFontsVariant, DynamicFontsFile> variantMap, {
+    bool eager = false,
+  }) {
     final style = styleBuilder(familyName, variantMap, eager);
     _styleMap[familyName] = style;
     _themeMap[familyName] = themeBuilder(style);
@@ -265,7 +268,7 @@ class DynamicFontsVariant extends GoogleFontsVariant {
 /// ```
 abstract class DynamicFontsFile extends GoogleFontsFile {
   DynamicFontsFile(String expectedFileHash, int expectedLength)
-      : super(expectedFileHash, expectedLength);
+    : super(expectedFileHash, expectedLength);
 
   @override
   String get url;

@@ -6,10 +6,7 @@ import 'dart:ui';
 
 /// Represents a Google Fonts API variant in Flutter-specific types.
 class GoogleFontsVariant {
-  const GoogleFontsVariant({
-    required this.fontWeight,
-    required this.fontStyle,
-  });
+  const GoogleFontsVariant({required this.fontWeight, required this.fontStyle});
 
   /// Creates a [GoogleFontsVariant] from a Google Fonts API specific
   /// filename part.
@@ -26,8 +23,8 @@ class GoogleFontsVariant {
   ///
   /// See [GoogleFontsVariant.toApiFilenamePart] for the inverse function.
   GoogleFontsVariant.fromApiFilenamePart(String filenamePart)
-      : fontWeight = _extractFontWeightFromApiFilenamePart(filenamePart),
-        fontStyle = _extractFontStyleFromApiFilenamePart(filenamePart);
+    : fontWeight = _extractFontWeightFromApiFilenamePart(filenamePart),
+      fontStyle = _extractFontStyleFromApiFilenamePart(filenamePart);
 
   /// Creates a [GoogleFontsVariant] from a Google Fonts API specific
   /// variant name.
@@ -40,13 +37,14 @@ class GoogleFontsVariant {
   ///
   /// See [GoogleFontsVariant.toString] for the inverse function.
   GoogleFontsVariant.fromString(String variantString)
-      : fontWeight = FontWeight.values[variantString == _regular ||
-                variantString == _italic
-            ? 3
-            : (int.parse(variantString.replaceAll(_italic, '')) ~/ 100) - 1],
-        fontStyle = variantString.contains(_italic)
-            ? FontStyle.italic
-            : FontStyle.normal;
+    : fontWeight =
+          FontWeight.values[variantString == _regular ||
+                  variantString == _italic
+              ? 3
+              : (int.parse(variantString.replaceAll(_italic, '')) ~/ 100) - 1],
+      fontStyle = variantString.contains(_italic)
+          ? FontStyle.italic
+          : FontStyle.normal;
 
   final FontWeight fontWeight;
   final FontStyle fontStyle;
@@ -90,7 +88,8 @@ class GoogleFontsVariant {
   ///
   /// See [GoogleFontsVariant.fromApiFilenamePart] for the inverse function.
   String toApiFilenamePart() {
-    final weightPrefix = _fontWeightToFilenameWeightParts[fontWeight] ??
+    final weightPrefix =
+        _fontWeightToFilenameWeightParts[fontWeight] ??
         _fontWeightToFilenameWeightParts[FontWeight.w400]!;
     final italicSuffix = fontStyle == FontStyle.italic ? 'Italic' : '';
     if (weightPrefix == 'Regular') {
@@ -111,8 +110,9 @@ class GoogleFontsVariant {
   /// See [GoogleFontsVariant.toString] for the inverse function.
   @override
   String toString() {
-    final fontWeightString =
-        fontWeight.index == 3 ? '' : (fontWeight.index + 1) * 100;
+    final fontWeightString = fontWeight.index == 3
+        ? ''
+        : (fontWeight.index + 1) * 100;
     final fontStyleString = fontStyle
         .toString()
         .replaceAll('FontStyle.', '')

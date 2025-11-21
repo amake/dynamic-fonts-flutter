@@ -75,8 +75,9 @@ void main() {
     expect(GoogleFontsVariant.fromString('500italic'), equals(variant));
   });
 
-  testWidgets('toApiFilenamePart() works for all normal combintaions',
-      (tester) async {
+  testWidgets('toApiFilenamePart() works for all normal combintaions', (
+    tester,
+  ) async {
     expect(
       const GoogleFontsVariant(
         fontWeight: FontWeight.w100,
@@ -126,11 +127,12 @@ void main() {
     );
 
     expect(
-        const GoogleFontsVariant(
-          fontWeight: FontWeight.w700,
-          fontStyle: FontStyle.normal,
-        ).toApiFilenamePart(),
-        equals('Bold'));
+      const GoogleFontsVariant(
+        fontWeight: FontWeight.w700,
+        fontStyle: FontStyle.normal,
+      ).toApiFilenamePart(),
+      equals('Bold'),
+    );
 
     expect(
       const GoogleFontsVariant(
@@ -149,8 +151,9 @@ void main() {
     );
   });
 
-  testWidgets('toApiFilenamePart() works for all italic combintaions',
-      (tester) async {
+  testWidgets('toApiFilenamePart() works for all italic combintaions', (
+    tester,
+  ) async {
     expect(
       const GoogleFontsVariant(
         fontWeight: FontWeight.w100,
@@ -224,8 +227,9 @@ void main() {
     );
   });
 
-  testWidgets('fromApiFilenamePart() works for all normal combintaions',
-      (tester) async {
+  testWidgets('fromApiFilenamePart() works for all normal combintaions', (
+    tester,
+  ) async {
     expect(
       GoogleFontsVariant.fromApiFilenamePart('Thin'),
       equals(
@@ -317,8 +321,9 @@ void main() {
     );
   });
 
-  testWidgets('fromApiFilenamePart() works for all italic combintaions',
-      (tester) async {
+  testWidgets('fromApiFilenamePart() works for all italic combintaions', (
+    tester,
+  ) async {
     expect(
       GoogleFontsVariant.fromApiFilenamePart('ThinItalic'),
       equals(
@@ -456,8 +461,9 @@ void main() {
     expect(variant == otherVariant, isFalse);
   });
 
-  testWidgets('== fails for different fontWeights and different fontStyles',
-      (tester) async {
+  testWidgets('== fails for different fontWeights and different fontStyles', (
+    tester,
+  ) async {
     const variant = GoogleFontsVariant(
       fontWeight: FontWeight.w500,
       fontStyle: FontStyle.italic,

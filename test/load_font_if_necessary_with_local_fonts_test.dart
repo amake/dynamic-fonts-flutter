@@ -7,8 +7,7 @@ import 'package:dynamic_fonts/src/google_fonts_descriptor.dart';
 import 'package:dynamic_fonts/src/google_fonts_family_with_variant.dart';
 import 'package:dynamic_fonts/src/google_fonts_variant.dart';
 import 'package:flutter/material.dart';
-// ignore: undefined_hidden_name
-import 'package:flutter/services.dart' hide AssetManifest;
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:mockito/mockito.dart';
@@ -19,6 +18,13 @@ class MockHttpClient extends Mock implements http.Client {
   Future<http.Response> gets(dynamic uri, {dynamic headers}) {
     super.noSuchMethod(Invocation.method(#get, [uri], {#headers: headers}));
     return Future.value(http.Response('', 200));
+  }
+}
+
+class MockAssetManifest extends Mock implements AssetManifest {
+  @override
+  List<String> listAssets() {
+    return ['google_fonts/Foo-BlackItalic.ttf'];
   }
 }
 
@@ -59,6 +65,7 @@ void main() {
   setUp(() async {
     mockHttpClient = MockHttpClient();
     httpClient = mockHttpClient;
+    assetManifest = MockAssetManifest();
     DynamicFonts.config.allowRuntimeFetching = true;
     when(mockHttpClient.gets(any)).thenAnswer((_) async {
       return http.Response(_fakeResponse, 200);
@@ -67,11 +74,12 @@ void main() {
     // Add Foo-BlackItalic to mock asset bundle.
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMessageHandler('flutter/assets', (message) {
-      final Uint8List encoded =
-          utf8.encoder.convert('{"google_fonts/Foo-BlackItalic.ttf":'
-              '["google_fonts/Foo-BlackItalic.ttf"]}');
-      return Future.value(encoded.buffer.asByteData());
-    });
+          final Uint8List encoded = utf8.encoder.convert(
+            '{"google_fonts/Foo-BlackItalic.ttf":'
+            '["google_fonts/Foo-BlackItalic.ttf"]}',
+          );
+          return Future.value(encoded.buffer.asByteData());
+        });
 
     directory = await Directory.systemTemp.createTemp();
     PathProviderPlatform.instance = FakePathProviderPlatform(directory.path);
@@ -79,8 +87,7 @@ void main() {
 
   tearDown(() {});
 
-  test(
-      'loadFontIfNecessary method does nothing if the font is in the '
+  test('loadFontIfNecessary method does nothing if the font is in the '
       'Asset Manifest', () async {
     final descriptorInAssets = GoogleFontsDescriptor(
       familyWithVariant: const GoogleFontsFamilyWithVariant(

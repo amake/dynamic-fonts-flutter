@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 import 'package:crypto/crypto.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
@@ -172,7 +173,7 @@ Future<void> loadFontIfNecessary(
 
     // Check if this font can be loaded by the pre-bundled assets.
     assetManifest ??= await AssetManifest.loadFromAssetBundle(rootBundle);
-    final String? assetPath = _findFamilyWithVariantAssetPath(
+    final String? assetPath = findFamilyWithVariantAssetPath(
       descriptor.familyWithVariant,
       assetManifest?.listAssets(),
     );
@@ -204,28 +205,32 @@ Future<void> loadFontIfNecessary(
       }
     } else {
       throw Exception(
-        'GoogleFonts.config.allowRuntimeFetching is false but font $fontName was not '
+        'DynamicFonts.config.allowRuntimeFetching is false but font $fontName was not '
         'found in the application assets. Ensure $fontName.ttf exists in a '
         "folder that is included in your pubspec's assets.",
       );
     }
   } catch (e) {
     _loadedFonts.remove(familyWithVariantString);
-    print(
+    debugPrint(
       'Error: dynamic_fonts was unable to load font $fontName because the '
       'following exception occurred:\n$e',
     );
     if (file_io.isTest) {
-      // print('\nThere is likely something wrong with your test. Please see '
-      //     'https://github.com/material-foundation/flutter-packages/blob/main/packages/google_fonts/example/test '
-      //     'for examples of how to test with google_fonts.');
+      debugPrint(
+        '\nThere is likely something wrong with your test. Please see '
+        'https://github.com/material-foundation/flutter-packages/blob/main/packages/google_fonts/example/test '
+        'for examples of how to test with google_fonts.',
+      );
     } else if (file_io.isMacOS || file_io.isAndroid) {
-      print(
+      debugPrint(
         '\nSee https://docs.flutter.dev/development/data-and-backend/networking#platform-notes.',
       );
     }
-    // print('If troubleshooting doesn\'t solve the problem, please file an issue '
-    //     'at https://github.com/material-foundation/flutter-packages/issues/new/choose.\n');
+    debugPrint(
+      'If troubleshooting doesn\'t solve the problem, please file an issue '
+      'at https://github.com/material-foundation/flutter-packages/issues/new/choose.\n',
+    );
     rethrow;
   }
 }
@@ -317,7 +322,7 @@ int _computeMatch(GoogleFontsVariant a, GoogleFontsVariant b) {
   if (a == b) {
     return 0;
   }
-  int score = (a.fontWeight.index - b.fontWeight.index).abs();
+  int score = (a.fontWeight.value - b.fontWeight.value).abs() ~/ 100;
   if (a.fontStyle != b.fontStyle) {
     score += 2;
   }
@@ -326,27 +331,32 @@ int _computeMatch(GoogleFontsVariant a, GoogleFontsVariant b) {
 
 /// Looks for a matching [familyWithVariant] font, provided the asset manifest.
 /// Returns the path of the font asset if found, otherwise an empty string.
-String? _findFamilyWithVariantAssetPath(
+@visibleForTesting
+String? findFamilyWithVariantAssetPath(
   GoogleFontsFamilyWithVariant familyWithVariant,
-  List<String>? manifestValues,
-) {
+  List<String>? manifestValues, {
+  bool isWeb = kIsWeb,
+}) {
   if (manifestValues == null) {
     return null;
   }
 
-  final apiFilenamePrefix = familyWithVariant.toApiFilenamePrefix();
+  final String apiFilenamePrefix = familyWithVariant.toApiFilenamePrefix();
+  final fileTypes = isWeb
+      ? ['.woff2', '.woff', '.ttf', '.otf']
+      : ['.ttf', '.otf'];
 
-  for (final asset in manifestValues) {
-    for (final String matchingSuffix in [
-      '.ttf',
-      '.otf',
-    ].where(asset.endsWith)) {
-      final assetWithoutExtension = asset.substring(
-        0,
-        asset.length - matchingSuffix.length,
-      );
-      if (assetWithoutExtension.endsWith(apiFilenamePrefix)) {
-        return asset;
+  // Iterate by file type priority, ensuring preferred formats are selected.
+  for (final fileType in fileTypes) {
+    for (final asset in manifestValues) {
+      if (asset.endsWith(fileType)) {
+        final String assetWithoutExtension = asset.substring(
+          0,
+          asset.length - fileType.length,
+        );
+        if (assetWithoutExtension.endsWith(apiFilenamePrefix)) {
+          return asset;
+        }
       }
     }
   }

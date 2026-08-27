@@ -80,6 +80,10 @@ final fakeDescriptor = GoogleFontsDescriptor(
   file: _fakeResponseFile,
 );
 
+final Map<GoogleFontsVariant, GoogleFontsFile> _fakeFonts = <GoogleFontsVariant, GoogleFontsFile>{
+  fakeDescriptor.familyWithVariant.googleFontsVariant: fakeDescriptor.file,
+};
+
 // Same family & variant, different file.
 final fakeDescriptorDifferentFile = GoogleFontsDescriptor(
   familyWithVariant: fakeDescriptor.familyWithVariant,
@@ -379,5 +383,17 @@ void main() {
       ),
       returnsNormally,
     );
+  });
+
+
+  test('pendingFonts removes failed font loads', () async {
+    when(mockHttpClient.gets(any)).thenAnswer((_) async {
+      return http.Response('', 404);
+    });
+
+    googleFontsTextStyle(fontFamily: fakeDescriptor.familyWithVariant.family, fonts: _fakeFonts);
+
+    await expectLater(DynamicFonts.pendingFonts(), throwsException);
+    expect(await DynamicFonts.pendingFonts(), isEmpty);
   });
 }

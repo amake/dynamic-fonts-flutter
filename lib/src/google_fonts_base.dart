@@ -181,7 +181,7 @@ Future<void> loadFontIfNecessary(
       byteData = rootBundle.load(assetPath);
     }
     if (await byteData != null) {
-      return loadFontByteData(familyWithVariantString, byteData, fontLoader);
+      return await loadFontByteData(familyWithVariantString, byteData, fontLoader);
     }
 
     // Check if this font can be loaded from the device file system.
@@ -191,7 +191,7 @@ Future<void> loadFontIfNecessary(
     );
 
     if (await byteData != null) {
-      return loadFontByteData(familyWithVariantString, byteData, fontLoader);
+      return await loadFontByteData(familyWithVariantString, byteData, fontLoader);
     }
 
     // Attempt to load this font via http, unless disallowed.
@@ -201,7 +201,7 @@ Future<void> loadFontIfNecessary(
         descriptor.file,
       );
       if (await byteData != null) {
-        return loadFontByteData(familyWithVariantString, byteData, fontLoader);
+        return await loadFontByteData(familyWithVariantString, byteData, fontLoader);
       }
     } else {
       throw Exception(

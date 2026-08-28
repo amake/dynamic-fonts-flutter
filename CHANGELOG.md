@@ -1,3 +1,8 @@
+## [3.1.0] - 2026-08-28
+
+* Bug fixes
+* Parity with google_fonts 8.2.1
+
 ## [3.0.2] - 2026-08-27
 
 * Bug fixes

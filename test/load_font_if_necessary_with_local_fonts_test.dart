@@ -45,12 +45,8 @@ const _fakeResponse = 'fake response body - success';
 // The number of bytes in _fakeResponse.
 const _fakeResponseLengthInBytes = 28;
 // Computed by converting _fakeResponse to bytes and getting sha 256 hash.
-const _fakeResponseHash =
-    '1194f6ffe4d2f05258573616a77932c38041f3102763096c19437c3db1818a04';
-final _fakeResponseFile = GoogleFontsFile(
-  _fakeResponseHash,
-  _fakeResponseLengthInBytes,
-);
+const _fakeResponseHash = '1194f6ffe4d2f05258573616a77932c38041f3102763096c19437c3db1818a04';
+final _fakeResponseFile = GoogleFontsFile(_fakeResponseHash, _fakeResponseLengthInBytes);
 
 // =============================== WARNING! ====================================
 // Do not add tests to this test file. Because the set up mocks a system message
@@ -72,14 +68,16 @@ void main() {
     });
 
     // Add Foo-BlackItalic to mock asset bundle.
-    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMessageHandler('flutter/assets', (message) {
-          final Uint8List encoded = utf8.encoder.convert(
-            '{"google_fonts/Foo-BlackItalic.ttf":'
-            '["google_fonts/Foo-BlackItalic.ttf"]}',
-          );
-          return Future.value(encoded.buffer.asByteData());
-        });
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMessageHandler(
+      'flutter/assets',
+      (message) {
+        final Uint8List encoded = utf8.encoder.convert(
+          '{"google_fonts/Foo-BlackItalic.ttf":'
+          '["google_fonts/Foo-BlackItalic.ttf"]}',
+        );
+        return Future.value(encoded.buffer.asByteData());
+      },
+    );
 
     directory = await Directory.systemTemp.createTemp();
     PathProviderPlatform.instance = FakePathProviderPlatform(directory.path);

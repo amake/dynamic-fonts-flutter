@@ -6,17 +6,18 @@
 
 import 'dart:ui' as ui;
 
-import 'package:dynamic_fonts/src/google_fonts_base.dart';
-import 'package:dynamic_fonts/src/google_fonts_descriptor.dart';
-import 'package:dynamic_fonts/src/google_fonts_variant.dart';
 import 'package:flutter/material.dart';
+
+import 'src/google_fonts_base.dart';
+import 'src/google_fonts_descriptor.dart';
+import 'src/google_fonts_variant.dart';
 
 /// A collection of properties used to specify custom behavior of the
 /// DynamicFonts library.
 class _Config {
   /// Whether or not the DynamicFonts library can make network requests to
   /// retrieve font files.
-  var allowRuntimeFetching = true;
+  bool allowRuntimeFetching = true;
 }
 
 typedef TextStyleBuilder =
@@ -56,8 +57,7 @@ class DynamicFonts {
   /// ```
   static final config = _Config();
 
-  static Future<List<void>> pendingFonts([List<dynamic>? _]) =>
-      Future.wait(pendingFontFutures);
+  static Future<List<void>> pendingFonts([List<dynamic>? _]) => Future.wait(pendingFontFutures);
 
   static final Map<String, TextStyleBuilder> _styleMap = {};
 
@@ -73,15 +73,14 @@ class DynamicFonts {
   ///
   /// Returns a map where the key is the name of the font family and the value
   /// is the corresponding [DynamicFonts] `TextTheme` method.
-  static Map<String, TextThemeBuilder> _asMapOfTextThemes() =>
-      Map.unmodifiable(_themeMap);
+  static Map<String, TextThemeBuilder> _asMapOfTextThemes() => Map.unmodifiable(_themeMap);
 
   static void register(
     String familyName,
     Map<DynamicFontsVariant, DynamicFontsFile> variantMap, {
     bool eager = false,
   }) {
-    final style = styleBuilder(familyName, variantMap, eager);
+    final TextStyleBuilder style = styleBuilder(familyName, variantMap, eager);
     _styleMap[familyName] = style;
     _themeMap[familyName] = themeBuilder(style);
   }
@@ -117,7 +116,7 @@ class DynamicFonts {
     TextDecorationStyle? decorationStyle,
     double? decorationThickness,
   }) {
-    final fonts = DynamicFonts.asMap();
+    final Map<String, TextStyleBuilder> fonts = DynamicFonts.asMap();
     if (!fonts.containsKey(fontFamily)) {
       throw Exception("No font family by name '$fontFamily' was found.");
     }
@@ -154,34 +153,33 @@ class DynamicFonts {
   /// Parameter [fontFamily] must not be `null`. Throws if no font by name
   /// [fontFamily] exists.
   static TextTheme getTextTheme(String fontFamily, [TextTheme? textTheme]) {
-    final fonts = _asMapOfTextThemes();
+    final Map<String, TextThemeBuilder> fonts = _asMapOfTextThemes();
     if (!fonts.containsKey(fontFamily)) {
       throw Exception("No font family by name '$fontFamily' was found.");
     }
     return fonts[fontFamily]!(textTheme);
   }
 
-  static TextThemeBuilder themeBuilder(TextStyleBuilder styleBuilder) =>
-      ([textTheme]) {
-        textTheme ??= ThemeData.light().textTheme;
-        return TextTheme(
-          displayLarge: styleBuilder(textStyle: textTheme.displayLarge),
-          displayMedium: styleBuilder(textStyle: textTheme.displayMedium),
-          displaySmall: styleBuilder(textStyle: textTheme.displaySmall),
-          headlineLarge: styleBuilder(textStyle: textTheme.headlineLarge),
-          headlineMedium: styleBuilder(textStyle: textTheme.headlineMedium),
-          headlineSmall: styleBuilder(textStyle: textTheme.headlineSmall),
-          titleLarge: styleBuilder(textStyle: textTheme.titleLarge),
-          titleMedium: styleBuilder(textStyle: textTheme.titleMedium),
-          titleSmall: styleBuilder(textStyle: textTheme.titleSmall),
-          bodyLarge: styleBuilder(textStyle: textTheme.bodyLarge),
-          bodyMedium: styleBuilder(textStyle: textTheme.bodyMedium),
-          bodySmall: styleBuilder(textStyle: textTheme.bodySmall),
-          labelLarge: styleBuilder(textStyle: textTheme.labelLarge),
-          labelMedium: styleBuilder(textStyle: textTheme.labelMedium),
-          labelSmall: styleBuilder(textStyle: textTheme.labelSmall),
-        );
-      };
+  static TextThemeBuilder themeBuilder(TextStyleBuilder styleBuilder) => ([textTheme]) {
+    textTheme ??= ThemeData.light().textTheme;
+    return TextTheme(
+      displayLarge: styleBuilder(textStyle: textTheme.displayLarge),
+      displayMedium: styleBuilder(textStyle: textTheme.displayMedium),
+      displaySmall: styleBuilder(textStyle: textTheme.displaySmall),
+      headlineLarge: styleBuilder(textStyle: textTheme.headlineLarge),
+      headlineMedium: styleBuilder(textStyle: textTheme.headlineMedium),
+      headlineSmall: styleBuilder(textStyle: textTheme.headlineSmall),
+      titleLarge: styleBuilder(textStyle: textTheme.titleLarge),
+      titleMedium: styleBuilder(textStyle: textTheme.titleMedium),
+      titleSmall: styleBuilder(textStyle: textTheme.titleSmall),
+      bodyLarge: styleBuilder(textStyle: textTheme.bodyLarge),
+      bodyMedium: styleBuilder(textStyle: textTheme.bodyMedium),
+      bodySmall: styleBuilder(textStyle: textTheme.bodySmall),
+      labelLarge: styleBuilder(textStyle: textTheme.labelLarge),
+      labelMedium: styleBuilder(textStyle: textTheme.labelMedium),
+      labelSmall: styleBuilder(textStyle: textTheme.labelSmall),
+    );
+  };
 
   static TextStyleBuilder styleBuilder(
     String fontFamily,
@@ -239,10 +237,7 @@ class DynamicFonts {
 
 /// Represents a font variant in Flutter-specific types.
 class DynamicFontsVariant extends GoogleFontsVariant {
-  const DynamicFontsVariant({
-    required FontWeight fontWeight,
-    required FontStyle fontStyle,
-  }) : super(fontWeight: fontWeight, fontStyle: fontStyle);
+  const DynamicFontsVariant({required super.fontWeight, required super.fontStyle});
 }
 
 /// Describes a font file as it is _expected_ to be received from the server.
@@ -267,8 +262,7 @@ class DynamicFontsVariant extends GoogleFontsVariant {
 /// }
 /// ```
 abstract class DynamicFontsFile extends GoogleFontsFile {
-  DynamicFontsFile(String expectedFileHash, int expectedLength)
-    : super(expectedFileHash, expectedLength);
+  DynamicFontsFile(super.expectedFileHash, super.expectedLength);
 
   @override
   String get url;

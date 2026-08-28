@@ -46,8 +46,7 @@ const _fakeResponse = 'fake response body - success';
 // The number of bytes in _fakeResponse.
 const _fakeResponseLengthInBytes = 28;
 // Computed by converting _fakeResponse to bytes and getting sha 256 hash.
-const _fakeResponseHash =
-    '1194f6ffe4d2f05258573616a77932c38041f3102763096c19437c3db1818a04';
+const _fakeResponseHash = '1194f6ffe4d2f05258573616a77932c38041f3102763096c19437c3db1818a04';
 const expectedCachedFile =
     'Foo_regular_1194f6ffe4d2f05258573616a77932c38041f3102763096c19437c3db1818a04.ttf';
 // ignore: unused_element
@@ -60,10 +59,7 @@ const _fakeResponseDifferentHash =
 const expectedDifferentCachedFile =
     'Foo_regular_2a989d235f2408511069bc7d8460c62aec1a75ac399bd7f2a2ae740c4326dadf.ttf';
 
-final _fakeResponseFile = GoogleFontsFile(
-  _fakeResponseHash,
-  _fakeResponseLengthInBytes,
-);
+final _fakeResponseFile = GoogleFontsFile(_fakeResponseHash, _fakeResponseLengthInBytes);
 final _fakeResponseDifferentFile = GoogleFontsFile(
   _fakeResponseDifferentHash,
   _fakeResponseDifferentLengthInBytes,
@@ -90,11 +86,11 @@ final fakeDescriptorDifferentFile = GoogleFontsDescriptor(
   file: _fakeResponseDifferentFile,
 );
 
-var printLog = <String>[];
+List<String> printLog = <String>[];
 
 void overridePrint(Future<void> Function() testFn) => () {
-  var spec = ZoneSpecification(
-    print: (_, __, ___, msg) {
+  final spec = ZoneSpecification(
+    print: (_, _, _, msg) {
       // Add to log instead of printing to stdout
       printLog.add(msg);
     },
@@ -151,10 +147,7 @@ void main() {
     overridePrint(() async {
       await loadFontIfNecessary(descriptorInAssets);
       expect(printLog.length, 1);
-      expect(
-        printLog[0],
-        startsWith('google_fonts was unable to load font Foo-BlackItalic'),
-      );
+      expect(printLog[0], startsWith('google_fonts was unable to load font Foo-BlackItalic'));
     });
   });
 
@@ -176,10 +169,7 @@ void main() {
     overridePrint(() async {
       await loadFontIfNecessary(fakeDescriptor);
       expect(printLog.length, 1);
-      expect(
-        printLog[0],
-        startsWith('google_fonts was unable to load font Foo-Regular'),
-      );
+      expect(printLog[0], startsWith('google_fonts was unable to load font Foo-Regular'));
       expect(
         printLog[0],
         endsWith(
@@ -238,38 +228,32 @@ void main() {
     verify(mockHttpClient.gets(anything)).called(1);
   });
 
-  test(
-    'loadFontIfNecessary makes second attempt if the first attempt failed ',
-    () async {
-      final fakeDescriptor = GoogleFontsDescriptor(
-        familyWithVariant: const GoogleFontsFamilyWithVariant(
-          family: 'Foo',
-          googleFontsVariant: GoogleFontsVariant(
-            fontWeight: FontWeight.w400,
-            fontStyle: FontStyle.normal,
-          ),
+  test('loadFontIfNecessary makes second attempt if the first attempt failed ', () async {
+    final fakeDescriptor = GoogleFontsDescriptor(
+      familyWithVariant: const GoogleFontsFamilyWithVariant(
+        family: 'Foo',
+        googleFontsVariant: GoogleFontsVariant(
+          fontWeight: FontWeight.w400,
+          fontStyle: FontStyle.normal,
         ),
-        file: _fakeResponseFile,
-      );
+      ),
+      file: _fakeResponseFile,
+    );
 
-      // Have the first call throw an error.
-      when(mockHttpClient.gets(any)).thenThrow('some error');
-      await expectLater(
-        loadFontIfNecessary(fakeDescriptor),
-        throwsA(const TypeMatcher<Exception>()),
-      );
+    // Have the first call throw an error.
+    when(mockHttpClient.gets(any)).thenThrow('some error');
+    await expectLater(loadFontIfNecessary(fakeDescriptor), throwsA(const TypeMatcher<Exception>()));
 
-      // The second call will retry the http fetch.
-      when(mockHttpClient.gets(any)).thenAnswer((_) async {
-        return http.Response(_fakeResponse, 200);
-      });
-      await loadFontIfNecessary(fakeDescriptor);
-      verify(mockHttpClient.gets(any)).called(2);
-    },
-  );
+    // The second call will retry the http fetch.
+    when(mockHttpClient.gets(any)).thenAnswer((_) async {
+      return http.Response(_fakeResponse, 200);
+    });
+    await loadFontIfNecessary(fakeDescriptor);
+    verify(mockHttpClient.gets(any)).called(2);
+  });
 
   test('loadFontIfNecessary method correctly stores in cache', () async {
-    var directoryContents = await getApplicationSupportDirectory();
+    Directory directoryContents = await getApplicationSupportDirectory();
     expect(directoryContents.listSync().isEmpty, isTrue);
 
     await loadFontIfNecessary(fakeDescriptor);
@@ -279,14 +263,11 @@ void main() {
 
     expect(directoryContents.listSync().isNotEmpty, isTrue);
 
-    expect(
-      directoryContents.listSync().single.toString(),
-      contains(expectedCachedFile),
-    );
+    expect(directoryContents.listSync().single.toString(), contains(expectedCachedFile));
   });
 
   test('loadFontIfNecessary method correctly uses cache', () async {
-    var directoryContents = await getApplicationSupportDirectory();
+    final Directory directoryContents = await getApplicationSupportDirectory();
     expect(directoryContents.listSync().isEmpty, isTrue);
 
     final cachedFile = File('${directoryContents.path}/$expectedCachedFile');
@@ -305,7 +286,7 @@ void main() {
       return http.Response(_fakeResponseDifferent, 200);
     });
 
-    var directoryContents = await getApplicationSupportDirectory();
+    final Directory directoryContents = await getApplicationSupportDirectory();
     expect(directoryContents.listSync().isEmpty, isTrue);
 
     final cachedFile = File('${directoryContents.path}/$expectedCachedFile');
@@ -319,10 +300,7 @@ void main() {
     // Give enough time for the file to be saved
     await Future.delayed(const Duration(seconds: 1), () {});
     expect(directoryContents.listSync().length == 2, isTrue);
-    expect(
-      directoryContents.listSync().toString(),
-      contains(expectedDifferentCachedFile),
-    );
+    expect(directoryContents.listSync().toString(), contains(expectedDifferentCachedFile));
 
     // Should use cache from now on.
     await loadFontIfNecessary(fakeDescriptorDifferentFile);
@@ -331,49 +309,37 @@ void main() {
     verifyNever(mockHttpClient.gets(anything));
   });
 
-  test(
-    'loadFontIfNecessary does not save anything to disk if the file does not '
-    'match the expected hash',
-    () async {
-      when(mockHttpClient.gets(any)).thenAnswer((_) async {
-        return http.Response('malicious intercepted response', 200);
-      });
-      final fakeDescriptor = GoogleFontsDescriptor(
-        familyWithVariant: const GoogleFontsFamilyWithVariant(
-          family: 'Foo',
-          googleFontsVariant: GoogleFontsVariant(
-            fontWeight: FontWeight.w400,
-            fontStyle: FontStyle.normal,
-          ),
+  test('loadFontIfNecessary does not save anything to disk if the file does not '
+      'match the expected hash', () async {
+    when(mockHttpClient.gets(any)).thenAnswer((_) async {
+      return http.Response('malicious intercepted response', 200);
+    });
+    final fakeDescriptor = GoogleFontsDescriptor(
+      familyWithVariant: const GoogleFontsFamilyWithVariant(
+        family: 'Foo',
+        googleFontsVariant: GoogleFontsVariant(
+          fontWeight: FontWeight.w400,
+          fontStyle: FontStyle.normal,
         ),
-        file: _fakeResponseFile,
-      );
+      ),
+      file: _fakeResponseFile,
+    );
 
-      var directoryContents = await getApplicationSupportDirectory();
+    Directory directoryContents = await getApplicationSupportDirectory();
+    expect(directoryContents.listSync().isEmpty, isTrue);
+
+    overridePrint(() async {
+      await loadFontIfNecessary(fakeDescriptor);
+      expect(printLog.length, 1);
+      expect(printLog[0], startsWith('google_fonts was unable to load font Foo-BlackItalic'));
+      directoryContents = await getApplicationSupportDirectory();
       expect(directoryContents.listSync().isEmpty, isTrue);
-
-      overridePrint(() async {
-        await loadFontIfNecessary(fakeDescriptor);
-        expect(printLog.length, 1);
-        expect(
-          printLog[0],
-          startsWith('google_fonts was unable to load font Foo-BlackItalic'),
-        );
-        directoryContents = await getApplicationSupportDirectory();
-        expect(directoryContents.listSync().isEmpty, isTrue);
-      });
-    },
-  );
+    });
+  });
 
   test("loadFontByteData doesn't fail", () {
-    expect(
-      () async => loadFontByteData('fontFamily', Future.value(ByteData(0))),
-      returnsNormally,
-    );
-    expect(
-      () async => loadFontByteData('fontFamily', Future.value(null)),
-      returnsNormally,
-    );
+    expect(() async => loadFontByteData('fontFamily', Future.value(ByteData(0))), returnsNormally);
+    expect(() async => loadFontByteData('fontFamily', Future.value()), returnsNormally);
     expect(() async => loadFontByteData('fontFamily', null), returnsNormally);
 
     expect(
@@ -384,7 +350,6 @@ void main() {
       returnsNormally,
     );
   });
-
 
   test('pendingFonts removes failed font loads', () async {
     when(mockHttpClient.gets(any)).thenAnswer((_) async {

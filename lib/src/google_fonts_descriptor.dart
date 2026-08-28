@@ -9,10 +9,7 @@ import 'google_fonts_family_with_variant.dart';
 /// This class mostly serves as a simple way to keep the connected font
 /// information together.
 class GoogleFontsDescriptor {
-  const GoogleFontsDescriptor({
-    required this.familyWithVariant,
-    required this.file,
-  });
+  const GoogleFontsDescriptor({required this.familyWithVariant, required this.file});
 
   final GoogleFontsFamilyWithVariant familyWithVariant;
   final GoogleFontsFile file;

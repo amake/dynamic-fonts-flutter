@@ -29,19 +29,13 @@ const _fakeResponse = 'fake response body - success';
 // The number of bytes in _fakeResponse.
 const _fakeResponseLengthInBytes = 28;
 // Computed by converting _fakeResponse to bytes and getting sha 256 hash.
-const _fakeResponseHash =
-    '1194f6ffe4d2f05258573616a77932c38041f3102763096c19437c3db1818a04';
+const _fakeResponseHash = '1194f6ffe4d2f05258573616a77932c38041f3102763096c19437c3db1818a04';
 
-final _fakeResponseFile = GoogleFontsFile(
-  _fakeResponseHash,
-  _fakeResponseLengthInBytes,
-);
+final _fakeResponseFile = GoogleFontsFile(_fakeResponseHash, _fakeResponseLengthInBytes);
 
 final fakeFonts = <GoogleFontsVariant, GoogleFontsFile>{
-  const GoogleFontsVariant(
-    fontWeight: FontWeight.w400,
-    fontStyle: FontStyle.normal,
-  ): _fakeResponseFile,
+  const GoogleFontsVariant(fontWeight: FontWeight.w400, fontStyle: FontStyle.normal):
+      _fakeResponseFile,
 };
 
 void main() {
@@ -67,8 +61,8 @@ void main() {
   test('pendingFonts waits for fonts to be loaded', () async {
     expect(await DynamicFonts.pendingFonts(), hasLength(0));
 
-    final textStyle1 = googleFontsTextStyle(fontFamily: 'ab', fonts: fakeFonts);
-    final textStyle2 = googleFontsTextStyle(fontFamily: 'cd', fonts: fakeFonts);
+    final TextStyle textStyle1 = googleFontsTextStyle(fontFamily: 'ab', fonts: fakeFonts);
+    final TextStyle textStyle2 = googleFontsTextStyle(fontFamily: 'cd', fonts: fakeFonts);
 
     expect(await DynamicFonts.pendingFonts(), hasLength(2));
     expect(await DynamicFonts.pendingFonts(), hasLength(0));

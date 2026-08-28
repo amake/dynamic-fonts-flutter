@@ -46,8 +46,8 @@ void main() {
 
   setUp(() async {
     mockHttpClient = MockHttpClient();
-    httpClient = mockHttpClient;
     assetManifest = MockAssetManifest();
+    DynamicFonts.config.httpClient = mockHttpClient;
     DynamicFonts.config.allowRuntimeFetching = true;
     when(mockHttpClient.gets(any)).thenAnswer((_) async {
       return http.Response(_fakeResponse, 200);

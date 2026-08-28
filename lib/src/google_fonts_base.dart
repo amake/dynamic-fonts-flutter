@@ -1,4 +1,4 @@
-// Copyright 2019 The Flutter team. All rights reserved.
+// Copyright 2013 The Flutter Authors
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -22,6 +22,7 @@ import 'google_fonts_variant.dart';
 /// Used to determine whether to load a font or not.
 final Set<String> _loadedFonts = {};
 
+/// Clears any previously loaded fonts.
 @visibleForTesting
 void clearCache() => _loadedFonts.clear();
 
@@ -33,8 +34,8 @@ void clearCache() => _loadedFonts.clear();
 /// completes, whether successfully or with an error, that future is removed.
 final Set<Future<void>> pendingFontFutures = <Future<void>>{};
 
-@visibleForTesting
-http.Client httpClient = http.Client();
+/// Default client used to fetch fonts when one is not supplied.
+final http.Client _httpClient = http.Client();
 
 /// The asset manifest to use for loading pre-bundled fonts.
 @visibleForTesting
@@ -121,12 +122,14 @@ TextStyle googleFontsTextStyle({
   );
 }
 
+/// Loads all variants of a font family into the [FontLoader] for the given
+/// [fontFamily] and [fonts].
 void eagerlyLoadFamily({
   required String fontFamily,
   required Map<GoogleFontsVariant, GoogleFontsFile> fonts,
 }) {
   final loader = FontLoader(fontFamily);
-  final futures = <Future>[];
+  final futures = <Future<dynamic>>[];
   for (final GoogleFontsVariant variant in fonts.keys) {
     final familyWithVariant = GoogleFontsFamilyWithVariant(
       family: fontFamily,
@@ -139,7 +142,7 @@ void eagerlyLoadFamily({
     final Future<void> loadingFuture = loadFontIfNecessary(descriptor, loader);
     pendingFontFutures.add(loadingFuture);
     futures.add(loadingFuture);
-    loadingFuture.then((_) => pendingFontFutures.remove(loadingFuture));
+    loadingFuture.whenComplete(() => pendingFontFutures.remove(loadingFuture)).ignore();
   }
   Future.wait<void>(futures).then((_) => loader.load());
 }
@@ -215,7 +218,7 @@ Future<void> loadFontIfNecessary(GoogleFontsDescriptor descriptor, [FontLoader? 
     if (file_io.isTest) {
       debugPrint(
         '\nThere is likely something wrong with your test. Please see '
-        'https://github.com/material-foundation/flutter-packages/blob/main/packages/google_fonts/example/test '
+        'https://github.com/flutter/packages/blob/main/packages/google_fonts/example/test '
         'for examples of how to test with google_fonts.',
       );
     } else if (file_io.isMacOS || file_io.isAndroid) {
@@ -225,7 +228,7 @@ Future<void> loadFontIfNecessary(GoogleFontsDescriptor descriptor, [FontLoader? 
     }
     debugPrint(
       "If troubleshooting doesn't solve the problem, please file an issue "
-      'at https://github.com/material-foundation/flutter-packages/issues/new/choose.\n',
+      'at https://github.com/flutter/flutter/issues/new/choose.\n',
     );
     rethrow;
   }
@@ -238,14 +241,20 @@ Future<void> loadFontByteData(
   Future<ByteData?>? byteData, [
   FontLoader? fontLoader,
 ]) async {
-  if (byteData == null) return;
+  if (byteData == null) {
+    return;
+  }
   final ByteData? fontData = await byteData;
-  if (fontData == null) return;
+  if (fontData == null) {
+    return;
+  }
 
   final loadNow = fontLoader == null;
   fontLoader ??= FontLoader(familyWithVariantString);
   fontLoader.addFont(Future.value(fontData));
-  if (loadNow) await fontLoader.load();
+  if (loadNow) {
+    await fontLoader.load();
+  }
 }
 
 /// Returns [GoogleFontsVariant] from [variantsToCompare] that most closely
@@ -281,8 +290,9 @@ Future<ByteData> _httpFetchFontAndSaveToDevice(String fontName, GoogleFontsFile 
   }
 
   http.Response response;
+  final http.Client client = DynamicFonts.config.httpClient ?? _httpClient;
   try {
-    response = await httpClient.get(uri);
+    response = await client.get(uri);
   } catch (e) {
     throw Exception('Failed to load font with url ${file.url}: $e');
   }

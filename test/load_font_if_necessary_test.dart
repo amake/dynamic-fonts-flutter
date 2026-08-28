@@ -1,3 +1,10 @@
+// Copyright 2013 The Flutter Authors
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+@TestOn('vm') // Uses dart:io
+library;
+
 import 'dart:async';
 import 'dart:io';
 
@@ -17,8 +24,10 @@ import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 class MockHttpClient extends Mock implements http.Client {
   Future<http.Response> gets(dynamic uri, {dynamic headers}) {
-    super.noSuchMethod(Invocation.method(#get, [uri], {#headers: headers}));
-    return Future.value(http.Response('', 200));
+    super.noSuchMethod(
+      Invocation.method(#get, <Object?>[uri], <Symbol, Object?>{#headers: headers}),
+    );
+    return Future<http.Response>.value(http.Response('', 200));
   }
 }
 
@@ -42,30 +51,33 @@ class FakePathProviderPlatform extends Fake
   }
 }
 
-const _fakeResponse = 'fake response body - success';
+const String _fakeResponse = 'fake response body - success';
 // The number of bytes in _fakeResponse.
-const _fakeResponseLengthInBytes = 28;
+const int _fakeResponseLengthInBytes = 28;
 // Computed by converting _fakeResponse to bytes and getting sha 256 hash.
-const _fakeResponseHash = '1194f6ffe4d2f05258573616a77932c38041f3102763096c19437c3db1818a04';
-const expectedCachedFile =
+const String _fakeResponseHash = '1194f6ffe4d2f05258573616a77932c38041f3102763096c19437c3db1818a04';
+const String expectedCachedFile =
     'Foo_regular_1194f6ffe4d2f05258573616a77932c38041f3102763096c19437c3db1818a04.ttf';
 // ignore: unused_element
-const _fakeResponseDifferent = 'different response';
+const String _fakeResponseDifferent = 'different response';
 // The number of bytes in _fakeResponseDifferent.
-const _fakeResponseDifferentLengthInBytes = 18;
+const int _fakeResponseDifferentLengthInBytes = 18;
 // Computed by converting _fakeResponseDifferent to bytes and getting sha 256 hash.
-const _fakeResponseDifferentHash =
+const String _fakeResponseDifferentHash =
     '2a989d235f2408511069bc7d8460c62aec1a75ac399bd7f2a2ae740c4326dadf';
-const expectedDifferentCachedFile =
+const String expectedDifferentCachedFile =
     'Foo_regular_2a989d235f2408511069bc7d8460c62aec1a75ac399bd7f2a2ae740c4326dadf.ttf';
 
-final _fakeResponseFile = GoogleFontsFile(_fakeResponseHash, _fakeResponseLengthInBytes);
-final _fakeResponseDifferentFile = GoogleFontsFile(
+final GoogleFontsFile _fakeResponseFile = GoogleFontsFile(
+  _fakeResponseHash,
+  _fakeResponseLengthInBytes,
+);
+final GoogleFontsFile _fakeResponseDifferentFile = GoogleFontsFile(
   _fakeResponseDifferentHash,
   _fakeResponseDifferentLengthInBytes,
 );
 
-final fakeDescriptor = GoogleFontsDescriptor(
+final GoogleFontsDescriptor fakeDescriptor = GoogleFontsDescriptor(
   familyWithVariant: const GoogleFontsFamilyWithVariant(
     family: 'Foo',
     googleFontsVariant: GoogleFontsVariant(
@@ -81,7 +93,7 @@ final Map<GoogleFontsVariant, GoogleFontsFile> _fakeFonts = <GoogleFontsVariant,
 };
 
 // Same family & variant, different file.
-final fakeDescriptorDifferentFile = GoogleFontsDescriptor(
+final GoogleFontsDescriptor fakeDescriptorDifferentFile = GoogleFontsDescriptor(
   familyWithVariant: fakeDescriptor.familyWithVariant,
   file: _fakeResponseDifferentFile,
 );
@@ -90,7 +102,7 @@ List<String> printLog = <String>[];
 
 void overridePrint(Future<void> Function() testFn) => () {
   final spec = ZoneSpecification(
-    print: (_, _, _, msg) {
+    print: (_, _, _, String msg) {
       // Add to log instead of printing to stdout
       printLog.add(msg);
     },
@@ -103,9 +115,9 @@ void main() {
   late MockHttpClient mockHttpClient;
 
   setUp(() async {
-    mockHttpClient = MockHttpClient();
-    httpClient = mockHttpClient;
     assetManifest = MockAssetManifest();
+    mockHttpClient = MockHttpClient();
+    DynamicFonts.config.httpClient = mockHttpClient;
     DynamicFonts.config.allowRuntimeFetching = true;
     when(mockHttpClient.gets(any)).thenAnswer((_) async {
       return http.Response(_fakeResponse, 200);
@@ -220,7 +232,7 @@ void main() {
       file: _fakeResponseFile,
     );
 
-    await Future.wait([
+    await Future.wait(<Future<void>>[
       loadFontIfNecessary(fakeDescriptor),
       loadFontIfNecessary(fakeDescriptor),
       loadFontIfNecessary(fakeDescriptor),
@@ -258,7 +270,7 @@ void main() {
 
     await loadFontIfNecessary(fakeDescriptor);
     // Give enough time for the file to be saved
-    await Future.delayed(const Duration(seconds: 1), () {});
+    await Future<void>.delayed(const Duration(seconds: 1), () {});
     directoryContents = await getApplicationSupportDirectory();
 
     expect(directoryContents.listSync().isNotEmpty, isTrue);
@@ -298,7 +310,7 @@ void main() {
     verify(mockHttpClient.gets(any)).called(1);
 
     // Give enough time for the file to be saved
-    await Future.delayed(const Duration(seconds: 1), () {});
+    await Future<void>.delayed(const Duration(seconds: 1), () {});
     expect(directoryContents.listSync().length == 2, isTrue);
     expect(directoryContents.listSync().toString(), contains(expectedDifferentCachedFile));
 
@@ -338,14 +350,17 @@ void main() {
   });
 
   test("loadFontByteData doesn't fail", () {
-    expect(() async => loadFontByteData('fontFamily', Future.value(ByteData(0))), returnsNormally);
-    expect(() async => loadFontByteData('fontFamily', Future.value()), returnsNormally);
+    expect(
+      () async => loadFontByteData('fontFamily', Future<ByteData?>.value(ByteData(0))),
+      returnsNormally,
+    );
+    expect(() async => loadFontByteData('fontFamily', Future<ByteData?>.value()), returnsNormally);
     expect(() async => loadFontByteData('fontFamily', null), returnsNormally);
 
     expect(
       () async => loadFontByteData(
         'fontFamily',
-        Future.delayed(const Duration(milliseconds: 100), () => null),
+        Future<ByteData?>.delayed(const Duration(milliseconds: 100), () => null),
       ),
       returnsNormally,
     );

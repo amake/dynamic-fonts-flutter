@@ -1,4 +1,4 @@
-// Copyright 2020 The Flutter team. All rights reserved.
+// Copyright 2013 The Flutter Authors
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -6,11 +6,20 @@ import 'google_fonts_variant.dart';
 
 /// Represents a Google Fonts API variant in Flutter-specific types.
 class GoogleFontsFamilyWithVariant {
+  /// Creates a representation of a Google Fonts family with a specific variant.
   const GoogleFontsFamilyWithVariant({required this.family, required this.googleFontsVariant});
 
+  /// The name of the Google Fonts family.
+  ///
+  /// Example: "Roboto", "Open Sans", etc.
   final String family;
+
+  /// The variant information including weight and style.
   final GoogleFontsVariant googleFontsVariant;
 
+  /// Returns the API filename prefix for this font family and variant.
+  ///
+  /// Example: "Roboto-400" for regular Roboto.
   String toApiFilenamePrefix() {
     return '$family-${googleFontsVariant.toApiFilenamePart()}';
   }

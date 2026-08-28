@@ -1,12 +1,23 @@
+// Copyright 2013 The Flutter Authors
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
 import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:path_provider/path_provider.dart';
 
+/// Whether the current platform is macOS.
 bool get isMacOS => Platform.isMacOS;
+
+/// Whether the current platform is Android.
 bool get isAndroid => Platform.isAndroid;
+
+/// Whether the code is running in the context of a test.
 bool get isTest => Platform.environment.containsKey('FLUTTER_TEST');
 
+/// Writes font [bytes] to a file in the application support directory,
+/// identified by the font [name] and [fileHash].
 Future<void> saveFontToDeviceFileSystem({
   required String name,
   required String fileHash,
@@ -16,6 +27,8 @@ Future<void> saveFontToDeviceFileSystem({
   await file.writeAsBytes(bytes);
 }
 
+/// Returns the bytes of a font previously written with
+/// [saveFontToDeviceFileSystem], or null if there is no such file.
 Future<ByteData?> loadFontFromDeviceFileSystem({
   required String name,
   required String fileHash,

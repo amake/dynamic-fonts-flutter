@@ -1,3 +1,5 @@
+// ignore_for_file: public_member_api_docs
+
 import 'package:dynamic_fonts/dynamic_fonts.dart';
 import 'package:flutter/material.dart';
 
@@ -24,7 +26,7 @@ class MyHomePage extends StatefulWidget {
   final String title;
 
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  State createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {

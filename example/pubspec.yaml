@@ -6,12 +6,11 @@ environment:
   sdk: ">=2.12.0-0 <3.0.0"
 
 dependencies:
-  flutter:
-    sdk: flutter
-
   cupertino_icons: ^1.0.5
   dynamic_fonts:
     path: ../
+  flutter:
+    sdk: flutter
 
 dev_dependencies:
   flutter_test:
